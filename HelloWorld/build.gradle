@@ -1,0 +1,55 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceSets {
+  main {
+     java.srcDirs = ['src']
+     output.classesDir = 'out/classes'
+      resources {
+       srcDirs = ['src']
+     }
+   }
+}
+
+dependencies {
+    compile fileTree(dir: "/opt/microsoft/sdk/servicefabric/java/packages/lib", include: ['*.jar'])
+}
+
+clean.doFirst {
+	delete "${rootDir}/out"
+}
+
+jar {
+	manifest {
+    attributes(
+		'Main-Class': 'statelessservice.HelloWorldServiceHost',
+		"Class-Path": configurations.compile.collect { 'lib/' + it.getName() }.join(' '))
+	baseName "helloworld"
+    destinationDir = file('../HelloWorldApplication/HelloWorldPkg/Code/')
+    }
+}
+
+task copyDeps<< {
+	copy {
+		from("/opt/microsoft/sdk/servicefabric/java/packages/lib")
+		into("../HelloWorldApplication/HelloWorldPkg/Code/lib")
+		include('*.jar')
+	}
+	copy {
+		from("/opt/microsoft/sdk/servicefabric/java/packages/lib")
+		into("../HelloWorldApplication/HelloWorldPkg/Code/lib")
+		include('*.so')
+	}
+	copy {
+		from("/opt/microsoft/sdk/servicefabric/java/packages/lib")
+		into("../HelloWorldApplication/HelloWorldPkg/Code/lib")
+		include('*.dll')
+	}
+}
+
+
+defaultTasks 'clean', 'jar', 'copyDeps'
+
+
+
+
